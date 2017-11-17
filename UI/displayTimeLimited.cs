@@ -17,10 +17,8 @@ public class displayTimeLimited : MonoBehaviour {
 	bool seedDisplay = false;
 	
 
-	private GameController gameController;
 	// Use this for initialization
 	void Start () {
-		gameController = Tools.loadGameController();
 		timeInteraction = totalTimeDisplayed;
 	}
 	
