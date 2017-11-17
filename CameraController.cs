@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-	StateManager stateManager;
 	Vector3 offset;
 	GameObject player;
 
@@ -14,22 +13,39 @@ public class CameraController : MonoBehaviour {
 	float cameraSpeed;
 
 	Vector3 forward, right;
+
+	[SerializeField]
+	bool moveEdges;
+	[SerializeField]
+	bool fixedCam;
+	[SerializeField]
+	bool followPlayer;
 	 
 
 	// Use this for initialization
 	void Start () {
 		mainCam = GetComponent<Camera>();
 		player =  GameObject.FindGameObjectWithTag("Player");
-		setupIsometricVector();
+		if (moveEdges) {
+			setupIsometricVector();
+		} else if (followPlayer) {
+			offset = transform.position - player.transform.position;
+		}
+		
 		//Calculate and store the offset value by getting the distance between the player's position and camera's position.
-		//offset = transform.position - player.transform.position;
+		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		isPlayerNearEdge();
+		if (moveEdges) {
+			isPlayerNearEdge();
+		} else if (followPlayer) {
+			transform.position = player.transform.position + offset;
+		}
+		
 		// Set the position of the camera's transform to be the same as the player's, but offset by the calculated offset distance.
-		//transform.position = player.transform.position + offset;
+		
 		
 	}
 
