@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CollectOnContact : MonoBehaviour {
 
-	private GameController gameController;
-	private StateManager stateManager;
+	GameController gameController;
+	StateManager stateManager;
 
 	public delegate void gainSeed();
 	public static event gainSeed onGainingSeed;

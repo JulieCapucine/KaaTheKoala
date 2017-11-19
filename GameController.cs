@@ -17,6 +17,8 @@ public class GameController : MonoBehaviour {
 	StateManager stateManager;
 	GameObject player;
 
+	AudioSource audio;
+
 	//Tree object
 	public Transform tree;
 
@@ -30,6 +32,7 @@ public class GameController : MonoBehaviour {
 		player =  GameObject.FindGameObjectWithTag("Player");
 		seedCounter = 0;
 		trashCounter = GameObject.FindGameObjectsWithTag("Trash").Length;
+		audio = GetComponent<AudioSource>();
 
 	}
 	
@@ -64,6 +67,7 @@ public class GameController : MonoBehaviour {
 
 	public void removeTrash(int num) {
 		trashCounter -= num;
+		audio.Play();
 	}
 
 	public float tiredness(){

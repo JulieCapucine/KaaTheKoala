@@ -7,37 +7,41 @@ public class TreeController : MonoBehaviour {
 
 	private int nbBranch;
 	public int nbBranchMax;
-	private TextMesh textMesh;
+	//private TextMesh textMesh;
 
 	public Sprite twoBranch;
 	public Sprite oneBranch;
 	public Sprite empty;
 
+	AudioSource audio;
+
 	// Use this for initialization
 	void Start () {
 		setUpBranch ();
+		audio = GetComponent<AudioSource>();
 	}	
 
 	void setUpBranch (){
 		nbBranch = nbBranchMax;
-		textMesh = gameObject.GetComponentInChildren<TextMesh>();
-		textMesh.text = nbBranch + " / " + nbBranchMax;
-		Debug.Log (textMesh.text);
+		//textMesh = gameObject.GetComponentInChildren<TextMesh>();
+		//textMesh.text = nbBranch + " / " + nbBranchMax;
+		Debug.Log (nbBranch + " / " + nbBranchMax);
 	}
 
 	public bool eatBranch(){
 		if (nbBranch > 0) {
 			nbBranch--;
-			textMesh.text = nbBranch + " / " + nbBranchMax;
+			audio.Play();
+			Debug.Log (nbBranch + " / " + nbBranchMax);
 			switch (nbBranch) {
 				case 2:
-					GetComponent<SpriteRenderer>().sprite = twoBranch;
+					GetComponentInChildren<SpriteRenderer>().sprite = twoBranch;
 					break;
 				case 1:
-					GetComponent<SpriteRenderer>().sprite = oneBranch;
+					GetComponentInChildren<SpriteRenderer>().sprite = oneBranch;
 					break;
 				case 0:
-					GetComponent<SpriteRenderer>().sprite = empty;
+					GetComponentInChildren<SpriteRenderer>().sprite = empty;
 					break;
 				default :
 					break;

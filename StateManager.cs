@@ -33,12 +33,16 @@ public class StateManager : MonoBehaviour {
 	float currentHealth;
 	float tempTime = 1;
 
-	AudioSource timerSound;
+	[SerializeField]
+	AudioClip dayAmbiance;
+	[SerializeField]
+	AudioClip nightAmbiance;
+	AudioSource audio;
 
 	// Use this for initialization
 	void Start () {
+		audio = GetComponent<AudioSource>();
 		startAwake ();
-		timerSound = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -58,6 +62,8 @@ public class StateManager : MonoBehaviour {
 		currentDistanceTravelled = 0;
 		lastPosition = player.transform.position;
 		currentHealth = healthMax;
+		audio.clip = dayAmbiance;
+		audio.Play();
 	}
 
 	void changeStateControle() {
@@ -69,7 +75,10 @@ public class StateManager : MonoBehaviour {
 				player = playerAsleep;
 				currentTime = timeMax;
 				state = State.Asleep;
-				timerSound.Play();
+				audio.clip = nightAmbiance;
+				audio.Play();
+				//AudioClip.PlayOneShot(timerSound, 0.7F);
+				// timerSound.Play();
 			}
 		} else {
 			if (currentTime <= 0) {
@@ -80,7 +89,9 @@ public class StateManager : MonoBehaviour {
 				state = State.Awake;
 				currentDistanceTravelled = 0;
 				lastPosition = player.transform.position;
-				timerSound.Stop();
+				// timerSound.Stop();
+				audio.clip = dayAmbiance;
+				audio.Play();
 			}
 		}
 	}

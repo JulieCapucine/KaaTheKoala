@@ -46,7 +46,7 @@ public class CharacterController : MonoBehaviour {
 		float moveVertical = Input.GetAxis ("Vertical");
 		float moveHorizontal = Input.GetAxis("Horizontal");
 		isPlayerMoving(moveVertical, moveHorizontal);
-
+		audio.pitch = gameController.tiredness();
 		if (isMoving) {	
 			updateMovementIsometric (moveVertical, moveHorizontal);
 			assignSprite(moveVertical, moveHorizontal);
