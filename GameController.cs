@@ -22,6 +22,8 @@ public class GameController : MonoBehaviour {
 	//Tree object
 	public Transform tree;
 
+	Vector3 forward;
+
 	[SerializeField]
 	float tirednessThreshold;
 	
@@ -46,6 +48,10 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	public void setFwdIso(Vector3 fwd){
+		forward = fwd;
+	}
+
 	//AWAKE KOALA
 	public void addSeed(int num) {
 		seedCounter += num;
@@ -59,9 +65,19 @@ public class GameController : MonoBehaviour {
 		
 	void plantSeed() {
 		if (seedCounter > 0) {
-			Vector3 pos = new Vector3 (player.transform.position.x + player.transform.forward.x, 2.58f, player.transform.position.z + player.transform.forward.z);
-			Instantiate(tree, pos, Quaternion.identity);
-			seedCounter--;
+			/*Calculate coordianate of the tree*/
+			player =  GameObject.FindGameObjectWithTag("Player");
+			Vector3 pos = forward*5 + player.transform.position;
+			pos.y = tree.position.y;
+
+			/*Checks tree is on the Ground / on the map */
+			RaycastHit hit;
+			Vector3 fwd = new Vector3 (0,-1,0);
+			bool hitSomething = Physics.Raycast (pos, fwd, out hit);
+			if (hitSomething && (hit.collider.gameObject.tag == "Ground")) {
+				Instantiate(tree, pos, Quaternion.identity);
+				seedCounter--;
+			}
 		}
 	}
 
@@ -70,6 +86,7 @@ public class GameController : MonoBehaviour {
 		audio.Play();
 	}
 
+	/* Calculate a tiredness coefficient relating to the distance travelled by the Koala */
 	public float tiredness(){
 		float tirednessCoef = (stateManager.getDistanceMax() - stateManager.getDistanceTravelled()) / stateManager.getDistanceMax();
 		if (tirednessCoef <= tirednessThreshold) { tirednessCoef = tirednessThreshold; }
@@ -77,7 +94,6 @@ public class GameController : MonoBehaviour {
 	}
 
 		
-	//AWAKE KOALA
 	void updateDistance() {
 		if (stateManager.getState() == State.Awake) {
 			stateManager.addDistance(Vector3.Distance(player.transform.position, stateManager.getLastPosition()));
@@ -85,7 +101,6 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	//ASLEEP KOALA
 	public void gainEnergy(int num) {
 		stateManager.addDistance(- num);
 	}

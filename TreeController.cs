@@ -15,11 +15,17 @@ public class TreeController : MonoBehaviour {
 
 	AudioSource audio;
 
+
+
 	// Use this for initialization
 	void Start () {
 		setUpBranch ();
 		audio = GetComponent<AudioSource>();
 	}	
+
+	void update() {
+
+	}
 
 	void setUpBranch (){
 		nbBranch = nbBranchMax;

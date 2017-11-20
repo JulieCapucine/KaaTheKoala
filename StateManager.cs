@@ -71,7 +71,9 @@ public class StateManager : MonoBehaviour {
 			if (currentDistanceTravelled >= distanceMax) {
 				//playerAwake.GetComponent<KoalaController>().Sleeping();
 				playerAwake.GetComponent<Rigidbody>().isKinematic = true;
-				playerAsleep = Instantiate (ghostKoala, playerAwake.transform.position + playerAwake.transform.forward, ghostKoala.transform.rotation).gameObject;
+				Vector3 position = playerAwake.transform.position + playerAwake.transform.forward;
+				position.y = ghostKoala.position.y;
+				playerAsleep = Instantiate (ghostKoala, position, ghostKoala.transform.rotation).gameObject;
 				player = playerAsleep;
 				currentTime = timeMax;
 				state = State.Asleep;
