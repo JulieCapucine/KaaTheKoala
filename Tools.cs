@@ -38,4 +38,19 @@ using UnityEngine;
 		return stateManager;
 	}
 
+	public static State getState() {
+		return loadStateManager().getState();
+	}
+
+	public static bool isPointOnGround(Vector3 pos) {
+		RaycastHit hit;
+		Vector3 fwd = new Vector3 (0,-1,0);
+		bool isHit = Physics.Raycast (pos, fwd, out hit, 5f);
+		if (isHit) {
+			if (hit.collider.gameObject.tag == "Ground") {				
+				return true;
+			}		
+		}
+		return false;
+	}
  }

@@ -5,17 +5,45 @@ using UnityEngine.UI;
 
 public class SeedCounterUI : MonoBehaviour {
 
-	public Text seedNb;
-	private GameController gameController;
+	[SerializeField]
+	Sprite inventoryFull;
+	[SerializeField]
+	Sprite inventoryEmpty;
+
+	Text seedCounter;
+	GameController gameController;
 
 	// Use this for initialization
 	void Start () {
 		gameController = Tools.loadGameController();
-		seedNb.text = gameController.getSeedCounter().ToString();
+		seedCounter = GetComponentInChildren<Text>();
+		seedCounter.enabled = false;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		seedNb.text = gameController.getSeedCounter().ToString();
+
+	void OnEnable() {
+		CollectOnContact.onGainingSeed += collectSeed;
+		GameController.onPlanting += plantSeed;
 	}
+
+	void OnDisable() {
+		CollectOnContact.onGainingSeed -= collectSeed;
+		GameController.onPlanting -= plantSeed;
+	}
+
+	void collectSeed (){
+		seedCounter.enabled = true;
+		seedCounter.text = gameController.getSeedCounter().ToString();
+		GetComponentInChildren<Image>().sprite = inventoryFull;
+	}
+
+	void plantSeed() {
+		if (gameController.getSeedCounter() == 0) {
+			seedCounter.enabled = false;
+			GetComponentInChildren<Image>().sprite = inventoryEmpty;
+		} else {
+			seedCounter.text = gameController.getSeedCounter().ToString();
+		}
+	}
+
 }
+

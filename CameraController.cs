@@ -26,6 +26,7 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 		mainCam = GetComponent<Camera>();
 		player =  GameObject.FindGameObjectWithTag("Player");
+		cameraSpeed = player.GetComponent<CharController>().getSpeed();
 		if (moveEdges) {
 			setupIsometricVector();
 		} else if (followPlayer) {
@@ -38,11 +39,14 @@ public class CameraController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (moveEdges) {
-			isPlayerNearEdge();
-		} else if (followPlayer) {
-			transform.position = player.transform.position + offset;
+		if (Tools.getState() != State.Done){
+			if (moveEdges) {
+				isPlayerNearEdge();
+			} else if (followPlayer) {
+				transform.position = player.transform.position + offset;
+			}
 		}
+		
 		
 		// Set the position of the camera's transform to be the same as the player's, but offset by the calculated offset distance.
 		
@@ -50,11 +54,8 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void isPlayerNearEdge() {
-		////Debug.Log(" player position :" + player.transform.position);
 		Vector3 screenPoint = mainCam.WorldToViewportPoint(player.transform.position);
 		bool onScreen = screenPoint.z > 0 && screenPoint.x > 0.2 && screenPoint.x < 0.8 && screenPoint.y > 0.2 && screenPoint.y < 0.8;
-		//Debug.Log(" player position in camera view :" + screenPoint + " bool : " + onScreen);
-		//Debug.Log("bool IsOnScreen : " + onScreen);
 		if (!onScreen) {
 			float moveHorizontal = 0, moveVertical = 0;
 			if (screenPoint.x < 0.2) {
@@ -66,11 +67,8 @@ public class CameraController : MonoBehaviour {
 			} else if (screenPoint.y > 0.8) {
 				moveVertical = 1;
 			}
-		//Debug.Log(" x : " + moveHorizontal + " y :" + moveVertical);
 		Vector3 rightMovement = right * cameraSpeed * Time.deltaTime * moveHorizontal;
 		Vector3 upMovememt = forward * cameraSpeed * Time.deltaTime * moveVertical;
-		Vector3 heading = Vector3.Normalize (rightMovement + upMovememt);
-		//Debug.Log("right : " + rightMovement + "up : " + upMovememt);
 		transform.position += rightMovement;
 		transform.position += upMovememt;
 		}
@@ -81,7 +79,25 @@ public class CameraController : MonoBehaviour {
 		forward.y = 0;
 		forward = Vector3.Normalize (forward);
 		right = Quaternion.Euler (new Vector3 (0, 90, 0)) * forward;
+		//transform.position = player.transform.position;
 	}
 	
- 
+ 	void OnEnable() {
+		StateManager.changeStateHppnd += changeStateHppnd;
+	}
+
+	void OnDisable() {
+		StateManager.changeStateHppnd -= changeStateHppnd;
+	}
+
+	void changeStateHppnd() {
+		 if (Tools.getState() == State.Asleep) {
+		 	player =  GameObject.Find("GhostKoala(Clone)");
+		 	offset = transform.position - player.transform.position;
+		 	transform.position = player.transform.position + offset;
+		 } else if (Tools.getState() == State.Awake) {
+		 	player =  GameObject.Find("Koala");
+		 }
+		
+	}
 }

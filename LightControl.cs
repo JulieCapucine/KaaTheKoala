@@ -40,7 +40,7 @@ public class lightControl : MonoBehaviour {
 
 			movingLateralSpotLight(0.4f, angleRange); 
 			if (isPlayerInLight ()) {
-				stateManager.looseHealth ();
+				stateManager.looseHealth (2);
 			}
 
 		}

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,17 +15,34 @@ public class displayTimeLimited : MonoBehaviour {
 	float totalSeedDisplayed;
 	float timeSeed;
 	bool seedDisplay = false;
+
 	
+	Image imgComponent;
+	[SerializeField]
+	Sprite plantSeed;
 
 	// Use this for initialization
 	void Start () {
+		imgComponent = GameObject.Find("InstructionText").GetComponent<Image>();
 		timeInteraction = totalTimeDisplayed;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		updateDisplayInteraction();
-		updateSeedDisplay();
+		if (Tools.getState() == State.Awake) {
+			updateSeedDisplay();
+		} 
+	
+	}
+
+	void updateDisplayMovement() {
+		if (timeInteraction <= 0 ) {
+			GetComponent<Text>().text = "";
+		} else {
+			GetComponent<Text>().text = "Press E to move objects";
+			timeInteraction -= Time.deltaTime;	
+		}
+
 	}
 		
 	void updateDisplayInteraction(){
@@ -40,14 +57,13 @@ public class displayTimeLimited : MonoBehaviour {
 	void updateSeedDisplay() {
 		if (seedDisplay) {
 			if (timeSeed <= 0) {
-				if (timeInteraction <= 0 ) {
-					GetComponent<Text>().text = "";
-				} else {
-					GetComponent<Text>().text = "Press E to interact with objects";	
-				}
+				imgComponent.enabled = false;
 				seedDisplay = false;
 			} else {
+
+				imgComponent.enabled = true;
 				timeSeed -= Time.deltaTime;
+				Debug.Log("here");
 			}
 		}
 	}
@@ -61,8 +77,9 @@ public class displayTimeLimited : MonoBehaviour {
 	}
 
 	void textPlantSeed (){
-		GetComponent<Text>().text = "Press R to plant";
-		timeSeed = totalSeedDisplayed;
+		imgComponent.enabled = true;
+		imgComponent.sprite = plantSeed;
 		seedDisplay = true;
+		timeSeed = totalSeedDisplayed;
 	}
 }

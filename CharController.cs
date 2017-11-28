@@ -3,43 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class CharacterController : MonoBehaviour {
+public class CharController : MonoBehaviour {
 
 	[SerializeField]
 	float moveSpeed;
 
 	[SerializeField]
 	bool awakeScript;
-	// Sprite frontKoala;
-	// [SerializeField]
-	// Sprite backKoala;
-	// [SerializeField]
-	// Sprite leftKoala;
-	// [SerializeField]
-	// Sprite rightKoala;
-	// [SerializeField]
-	// Sprite leftFrontKoala;
-	// [SerializeField]
-	// Sprite leftBackKoala;
-	// [SerializeField]
-	// Sprite rightFrontKoala;
-	// [SerializeField]
-	// Sprite rightBackKoala;
 
 	Vector3 forward, right;
 	GameController gameController;
-	StateManager stateManager;
+
 	AudioSource audio;
+	[SerializeField]
+	AudioClip snoringSound;
+	[SerializeField]
+	AudioClip footsteps;
+
+	[SerializeField]
+	float intervalBtwSnoring;
+	float tempNum = 0;
+
 	Animator animator;
 	
 	bool isMoving;
+	int nbColl;
+
+	public delegate void dying();
+	public static event dying onFalling;
 
 	// Use this for initialization
 	void Start () {
 		gameController = Tools.loadGameController();
-		stateManager = Tools.loadStateManager();
 		setupIsometricVector ();
-		//setupSprite();
 		isMoving = false;
 		audio = GetComponent<AudioSource>();
 		animator = GetComponent<Animator>();
@@ -47,13 +43,27 @@ public class CharacterController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if ((stateManager.getState() == State.Asleep) && (awakeScript)) {
+		if ((Tools.getState() == State.Asleep) && (awakeScript)) {
 			animator.SetInteger("Direction", -2);
+			snoring();
 		} else {
 			updateMovement();
 		}
+		if (nbColl == 0) {
+			if (onFalling != null) {
+				onFalling();
+			}
+
+		}
 		
-		
+	}
+
+	void snoring() {
+		tempNum -= Time.deltaTime;
+		if (tempNum <= 0){
+			tempNum = intervalBtwSnoring;
+			audio.PlayOneShot(snoringSound,1.0F);
+		}
 	}
 
 	void updateMovement() {
@@ -61,7 +71,7 @@ public class CharacterController : MonoBehaviour {
 			float moveHorizontal = Input.GetAxis("Horizontal");
 			isPlayerMoving(moveVertical, moveHorizontal);
 			if (isMoving) {	
-				if (stateManager.getState() == State.Awake) {
+				if (Tools.getState() == State.Awake) {
 					audio.pitch = gameController.tiredness();
 					updateMovementIsometric (moveVertical, moveHorizontal, true);		
 				} else {
@@ -81,9 +91,6 @@ public class CharacterController : MonoBehaviour {
 		right = Quaternion.Euler (new Vector3 (0, 90, 0)) * forward;
 	}
 
-	void setupSprite () {
-		//frontKoala = GetComponent<SpriteRenderer> ().sprite;
-	}
 
 	void isPlayerMoving(float moveVertical, float moveHorizontal) {
 		if ((moveVertical != 0) || (moveHorizontal != 0)) {
@@ -119,31 +126,35 @@ public class CharacterController : MonoBehaviour {
 
 	void assignAnimation (float moveVertical, float moveHorizontal){
 		if ((moveVertical < 0) && (moveHorizontal == 0)) {
-			//GetComponent<SpriteRenderer> ().sprite = frontKoala;
 			animator.SetInteger("Direction", 0);
 		} else if ((moveVertical > 0) && (moveHorizontal == 0)) {
-			//GetComponent<SpriteRenderer> ().sprite = backKoala;
 			animator.SetInteger("Direction", 0);
 		} else if ((moveVertical == 0 ) && (moveHorizontal > 0)) {
-			//GetComponent<SpriteRenderer> ().sprite = rightKoala;
 			animator.SetInteger("Direction", 6);
 		} else if ((moveVertical == 0 ) && (moveHorizontal < 0)) {
-			//GetComponent<SpriteRenderer> ().sprite = leftKoala;
 			animator.SetInteger("Direction", 2);
 		} else if ((moveVertical < 0 ) && (moveHorizontal < 0) ) {
-			//GetComponent<SpriteRenderer> ().sprite = leftFrontKoala;
 			animator.SetInteger("Direction", 1);
 		} else if ((moveVertical < 0 ) && (moveHorizontal > 0) ) {
-			//GetComponent<SpriteRenderer> ().sprite = rightFrontKoala;
 			animator.SetInteger("Direction", 7);
 		} else if ((moveVertical > 0 ) && (moveHorizontal < 0) ) {
-			//GetComponent<SpriteRenderer> ().sprite = leftBackKoala;
 			animator.SetInteger("Direction", 0);
 		} else if ((moveVertical > 0 ) && (moveHorizontal > 0) ) {
-			//GetComponent<SpriteRenderer> ().sprite = rightBackKoala;
 			animator.SetInteger("Direction", 0);
 		}
 
+	}
+
+	public float getSpeed() {
+		return moveSpeed;
+	}
+
+	void OnCollisionEnter(){
+		nbColl ++;
+	}
+
+	void OnCollisionExit() {
+		nbColl --;
 	}
 
 }

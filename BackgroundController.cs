@@ -10,16 +10,14 @@ public class BackgroundController : MonoBehaviour {
 	[SerializeField]
 	private Sprite day;
 
-	StateManager stateManager;
 
 	void Start () {
-		stateManager = Tools.loadStateManager();
 	}
 
 	void Update () {
-		if (stateManager.getState() == State.Awake) {
+		if (Tools.getState() == State.Awake) {
 			gameObject.GetComponent<Image>().sprite = day;
-		} else if (stateManager.getState() == State.Asleep ) {
+		} else if (Tools.getState() == State.Asleep ) {
 			gameObject.GetComponent<Image>().sprite = night;
 		}
 	}

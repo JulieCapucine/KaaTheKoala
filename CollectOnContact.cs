@@ -5,18 +5,27 @@ using UnityEngine;
 public class CollectOnContact : MonoBehaviour {
 
 	GameController gameController;
-	StateManager stateManager;
 
 	public delegate void gainSeed();
 	public static event gainSeed onGainingSeed;
 
+	Collider colliderAsleep;
+
 	void Start () {
 		gameController = Tools.loadGameController();
-		stateManager = Tools.loadStateManager();
+		colliderAsleep = GetComponent<Collider>();
+	}
+
+	void update() {
+		if (Tools.getState() == State.Asleep) {
+			colliderAsleep.enabled = false;
+		} else {
+			colliderAsleep.enabled = true;
+		}
 	}
 
 	void OnCollisionStay(Collision col) {
-		if (stateManager.getState() == State.Awake) {
+		if (Tools.getState() == State.Awake) {
 			if (Input.GetKeyDown (KeyCode.E)) {
 				if (col.gameObject.tag == "Trash") {
 					gameController.addSeed (1);
@@ -31,6 +40,8 @@ public class CollectOnContact : MonoBehaviour {
 					}
 				}
 			} 
+		} else {
+
 		}
 	}
 

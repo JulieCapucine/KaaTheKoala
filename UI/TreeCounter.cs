@@ -5,18 +5,36 @@ using UnityEngine.UI;
 
 public class TreeCounter : MonoBehaviour {
 
-	public Image tree;
+	[SerializeField]
+	Sprite treeGreen;
+	[SerializeField]
+	Sprite treePurple;
+
 	private float nbTree;
-	public int nbTreeMax;
+	int nbTreeMax;
+
+	Text treeCounter;
+
+	public delegate void planting();
+	public static event planting onAllPlanted;
 
 	// Use this for initialization
 	void Start () {
-		tree.fillAmount = 0;
+		nbTreeMax = Tools.loadGameController().getTreeObjective();
+		treeCounter = GetComponentInChildren<Text>();
+		treeCounter.text = "0/" + nbTreeMax;
 	}
 
 	// Update is called once per frame
 	void Update () {
 		nbTree = GameObject.FindGameObjectsWithTag("Tree").Length;
-		tree.fillAmount = nbTree / nbTreeMax;
+		treeCounter.text = nbTree + "/" + nbTreeMax;
+		if (nbTree == nbTreeMax) {
+			GetComponentInChildren<Image>().sprite = treeGreen;
+			treeCounter.color = new Color(0.3647f, 0.505f, 0.1176f);
+			if (onAllPlanted != null) {
+				onAllPlanted();
+			}
+		} 
 	}
 }

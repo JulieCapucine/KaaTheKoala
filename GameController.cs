@@ -1,17 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {
 
 	//UI Feedback
-	public GUIText trashText;
-	public GUIText seedText;
-	public GUIText stepText;
+	// public GUIText trashText;
+	// public GUIText seedText;
+	// public GUIText stepText;
 
 	//Counter displayed in the UI
-	int trashCounter;
-	int seedCounter;
+	int trashCounter, seedCounter;
+	float tempTime = 0, timeBeforeLosing;
+
+	[SerializeField]
+	int treeObjective;
+
 
 	//Manager between the Awake Koala Player and the GhostKoala player
 	StateManager stateManager;
@@ -20,12 +25,19 @@ public class GameController : MonoBehaviour {
 	AudioSource audio;
 
 	//Tree object
-	public Transform tree;
+	[SerializeField]
+	Transform tree;
 
 	Vector3 forward;
 
 	[SerializeField]
 	float tirednessThreshold;
+
+	public delegate void planting();
+	public static event planting onPlanting;
+
+	bool allTrashCollected, allTreePlanted, hasNoLifeLeft = false, hasWon = false, hasLost = false;
+	
 	
 
 	// Use this for initialization
@@ -40,11 +52,16 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		textUpdate();
-		updateDistance();
-		if (stateManager.getState() == State.Awake) {
-			keyboardInputAwake ();
+		//textUpdate();
+		if (hasWon) {
+			endGameMessage("YOU WIN !");
+		} else if (hasLost) {
+			endGameMessage("YOU LOSE !");
 		} else {
+			updateDistance();
+			if (stateManager.getState() == State.Awake) {
+				keyboardInputAwake ();
+			}
 		}
 	}
 
@@ -57,9 +74,35 @@ public class GameController : MonoBehaviour {
 		seedCounter += num;
 	}
 
+	void noLife() {
+		hasLost = true;
+	}
+
+	void endGameMessage(string str) {
+		tempTime += Time.deltaTime;
+			if (tempTime >= timeBeforeLosing) {
+				GameObject textEndObject = GameObject.FindGameObjectWithTag("Finish");
+				if (textEndObject != null) {
+					Text textEnd = textEndObject.GetComponent<Text>();
+					textEnd.enabled = true;
+					textEnd.text = str;
+				}
+				if (GameObject.Find("UICanvas") != null ) {
+					GameObject.Find("UICanvas").SetActive(false);
+				}
+				
+				player.SetActive(false);
+				stateManager.setState(State.Done);
+				player.GetComponent<Rigidbody>().isKinematic = true;
+			}
+	}
+
 	void keyboardInputAwake (){
 		if(Input.GetKeyDown(KeyCode.R)) {
 			plantSeed ();
+			if (onPlanting != null) {
+						onPlanting();
+			}
 		}
 	}
 		
@@ -79,6 +122,7 @@ public class GameController : MonoBehaviour {
 				seedCounter--;
 			}
 		}
+
 	}
 
 	public void removeTrash(int num) {
@@ -91,6 +135,10 @@ public class GameController : MonoBehaviour {
 		float tirednessCoef = (stateManager.getDistanceMax() - stateManager.getDistanceTravelled()) / stateManager.getDistanceMax();
 		if (tirednessCoef <= tirednessThreshold) { tirednessCoef = tirednessThreshold; }
 		return tirednessCoef;
+	}
+
+	public int getTreeObjective() {
+		return treeObjective;
 	}
 
 		
@@ -106,15 +154,15 @@ public class GameController : MonoBehaviour {
 	}
 		
 	//UI_UPDATE 
-	void textUpdate() {
-		trashText.text = "trash left: " + trashCounter;
-		seedText.text = "seeds in Kaa pooch: " + seedCounter;
-		if (stateManager.getState() == State.Awake) {
-			stepText.text = "distance left before falling asleep:" + Mathf.Floor (stateManager.getDistanceMax() - stateManager.getDistanceTravelled());
-		} else {
-			stepText.text = "time remaining : " + Mathf.Floor (stateManager.getTime().x);
-		}
-	}
+	// void textUpdate() {
+	// 	trashText.text = "trash left: " + trashCounter;
+	// 	seedText.text = "seeds in Kaa pooch: " + seedCounter;
+	// 	if (stateManager.getState() == State.Awake) {
+	// 		stepText.text = "distance left before falling asleep:" + Mathf.Floor (stateManager.getDistanceMax() - stateManager.getDistanceTravelled());
+	// 	} else {
+	// 		stepText.text = "time remaining : " + Mathf.Floor (stateManager.getTime().x);
+	// 	}
+	// }
 
 	public int getSeedCounter() {
 		return seedCounter;
@@ -122,6 +170,42 @@ public class GameController : MonoBehaviour {
 
 	public int getTrashCounter() {
 		return trashCounter;
+	}
+
+	void allTrash(){
+		allTrashCollected = true;
+		if (allTreePlanted) {
+			hasWon = true;
+			timeBeforeLosing = 1;
+		}
+	}
+
+	void allTree(){
+		allTreePlanted = true;
+		if (allTrashCollected == true) {
+			hasWon = true;
+			timeBeforeLosing = 1;
+		}
+	}
+
+	void fallingOutOfMap() {
+		hasLost = true;
+		timeBeforeLosing = 5;
+	}
+
+
+	void OnEnable() {
+		TrashCounter.onAllCollected += allTrash;
+		TreeCounter.onAllPlanted	+= allTree;
+		StateManager.noLifeLeft += noLife;
+		CharController.onFalling += fallingOutOfMap;
+	}
+
+	void OnDisable() {
+		TrashCounter.onAllCollected -= allTrash;
+		TreeCounter.onAllPlanted	-= allTree;
+		StateManager.noLifeLeft -= noLife;
+		CharController.onFalling -= fallingOutOfMap;
 	}
 
 }

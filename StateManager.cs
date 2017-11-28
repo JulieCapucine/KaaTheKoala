@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum State { Awake, Asleep };
+public enum State { Awake, Asleep, Done };
 
 public class StateManager : MonoBehaviour {
 
@@ -12,6 +12,12 @@ public class StateManager : MonoBehaviour {
 	GameObject playerAwake;
 	GameObject playerAsleep;
 	GameObject player;
+
+	public delegate void changeState();
+	public static event changeState changeStateHppnd;
+
+	public delegate void life();
+	public static event life noLifeLeft;
 
 	[SerializeField]
 	Transform ghostKoala;
@@ -30,6 +36,7 @@ public class StateManager : MonoBehaviour {
 	//Health
 	[SerializeField]
 	float healthMax;
+	[SerializeField]
 	float currentHealth;
 	float tempTime = 1;
 
@@ -69,6 +76,7 @@ public class StateManager : MonoBehaviour {
 	void changeStateControle() {
 		if (state == State.Awake) {
 			if (currentDistanceTravelled >= distanceMax) {
+				
 				//playerAwake.GetComponent<KoalaController>().Sleeping();
 				playerAwake.GetComponent<Rigidbody>().isKinematic = true;
 				Vector3 position = playerAwake.transform.position + playerAwake.transform.forward;
@@ -81,10 +89,13 @@ public class StateManager : MonoBehaviour {
 				audio.Play();
 				//AudioClip.PlayOneShot(timerSound, 0.7F);
 				// timerSound.Play();
+				if (changeStateHppnd != null) {
+						changeStateHppnd();
+				}
 			}
-		} else {
+		} else if (state == State.Asleep) {
 			if (currentTime <= 0) {
-				player = playerAwake;
+				
 				//playerAwake.GetComponent<KoalaController>().Awake();
 				playerAwake.GetComponent<Rigidbody>().isKinematic = false;
 				Destroy (playerAsleep);
@@ -94,7 +105,13 @@ public class StateManager : MonoBehaviour {
 				// timerSound.Stop();
 				audio.clip = dayAmbiance;
 				audio.Play();
+				if (changeStateHppnd != null) {
+						changeStateHppnd();
+				}
+				player = playerAwake;
 			}
+		} else if (state == State.Done) {
+			player.GetComponent<Rigidbody>().isKinematic = true;
 		}
 	}
 
@@ -115,15 +132,12 @@ public class StateManager : MonoBehaviour {
 		return health;
 	}
 
-	public void looseHealth(){
-		tempTime -= Time.deltaTime;
-		if (tempTime <= 0) {
-			currentHealth--;
-			tempTime = 1;
-		}
-
+	public void looseHealth(int num){
+		currentHealth -= num;
 		if (currentHealth == 0) {
-			SceneManager.LoadScene("PlayAgainMenu", LoadSceneMode.Single);
+			if (noLifeLeft != null) {
+				noLifeLeft();
+			}
 		} 
 	}
 
@@ -153,6 +167,10 @@ public class StateManager : MonoBehaviour {
 
 	public int getDistanceMax() {
 		return distanceMax;
+	}
+
+	public void setState(State newState) {
+		state = newState;
 	}
 
 

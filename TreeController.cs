@@ -13,14 +13,19 @@ public class TreeController : MonoBehaviour {
 	public Sprite oneBranch;
 	public Sprite empty;
 
+
 	AudioSource audio;
+	[SerializeField]
+	AudioClip eatLeaves;
 
-
+	Animator animator;
 
 	// Use this for initialization
 	void Start () {
 		setUpBranch ();
 		audio = GetComponent<AudioSource>();
+		GetComponent<Collider>().enabled = true;
+		animator = GetComponentInChildren<Animator>();
 	}	
 
 	void update() {
@@ -29,34 +34,50 @@ public class TreeController : MonoBehaviour {
 
 	void setUpBranch (){
 		nbBranch = nbBranchMax;
-		//textMesh = gameObject.GetComponentInChildren<TextMesh>();
-		//textMesh.text = nbBranch + " / " + nbBranchMax;
-		Debug.Log (nbBranch + " / " + nbBranchMax);
+		//Debug.Log (nbBranch + " / " + nbBranchMax);
 	}
 
 	public bool eatBranch(){
+		audio.clip = eatLeaves;
 		if (nbBranch > 0) {
 			nbBranch--;
 			audio.Play();
-			Debug.Log (nbBranch + " / " + nbBranchMax);
 			switch (nbBranch) {
 				case 2:
-					GetComponentInChildren<SpriteRenderer>().sprite = twoBranch;
+					animator.SetInteger("idleAnimation", 2);
 					break;
 				case 1:
-					GetComponentInChildren<SpriteRenderer>().sprite = oneBranch;
+					animator.SetInteger("idleAnimation", 1);
 					break;
 				case 0:
-					GetComponentInChildren<SpriteRenderer>().sprite = empty;
+					animator.SetInteger("idleAnimation", 0);
 					break;
 				default :
 					break;
 					
 			}
-
+			Debug.Log(animator.GetInteger("idleAnimation"));
 			return true;
 		} 
+		Debug.Log(animator.GetInteger("idleAnimation"));
 		return false;
+	}
+
+	void OnEnable() {
+		StateManager.changeStateHppnd += changeStateHppnd;
+	}
+
+	void OnDisable() {
+		StateManager.changeStateHppnd -= changeStateHppnd;
+	}
+
+	void changeStateHppnd() {
+		 if (Tools.getState() == State.Asleep) {
+		 	GetComponent<Collider>().enabled = false;
+		 } else if (Tools.getState() == State.Awake) {
+		 	GetComponent<Collider>().enabled = true;
+		 }
+		
 	}
 
 }
