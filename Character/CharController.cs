@@ -49,7 +49,7 @@ public class CharController : MonoBehaviour {
 		} else {
 			updateMovement();
 		}
-		if (nbColl == 0) {
+		if (isFallingDown()) {
 			if (onFalling != null) {
 				onFalling();
 			}
@@ -62,7 +62,15 @@ public class CharController : MonoBehaviour {
 		tempNum -= Time.deltaTime;
 		if (tempNum <= 0){
 			tempNum = intervalBtwSnoring;
-			audio.PlayOneShot(snoringSound,1.0F);
+			audio.PlayOneShot(snoringSound,0.9F);
+		}
+	}
+
+	bool isFallingDown() {
+		if (transform.position.y < -40f) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -126,21 +134,29 @@ public class CharController : MonoBehaviour {
 
 	void assignAnimation (float moveVertical, float moveHorizontal){
 		if ((moveVertical < 0) && (moveHorizontal == 0)) {
+			/*FRONT*/
 			animator.SetInteger("Direction", 0);
 		} else if ((moveVertical > 0) && (moveHorizontal == 0)) {
-			animator.SetInteger("Direction", 0);
+			/*BACK*/
+			animator.SetInteger("Direction", 4);
 		} else if ((moveVertical == 0 ) && (moveHorizontal > 0)) {
+			/*LEFT*/
 			animator.SetInteger("Direction", 6);
 		} else if ((moveVertical == 0 ) && (moveHorizontal < 0)) {
+			/*RIGHT*/
 			animator.SetInteger("Direction", 2);
 		} else if ((moveVertical < 0 ) && (moveHorizontal < 0) ) {
+			/*FRONTRIGHT*/
 			animator.SetInteger("Direction", 1);
 		} else if ((moveVertical < 0 ) && (moveHorizontal > 0) ) {
+			/*FRONTLEFT*/
 			animator.SetInteger("Direction", 7);
 		} else if ((moveVertical > 0 ) && (moveHorizontal < 0) ) {
-			animator.SetInteger("Direction", 0);
+			/*BACKRIGHT*/
+			animator.SetInteger("Direction", 3);
 		} else if ((moveVertical > 0 ) && (moveHorizontal > 0) ) {
-			animator.SetInteger("Direction", 0);
+			/*BACKRLEFT*/
+			animator.SetInteger("Direction", 5);
 		}
 
 	}
@@ -149,12 +165,12 @@ public class CharController : MonoBehaviour {
 		return moveSpeed;
 	}
 
-	void OnCollisionEnter(){
-		nbColl ++;
-	}
+	// void OnCollisionEnter(){
+	// 	nbColl ++;
+	// }
 
-	void OnCollisionExit() {
-		nbColl --;
-	}
+	// void OnCollisionExit() {
+	// 	nbColl --;
+	// }
 
 }

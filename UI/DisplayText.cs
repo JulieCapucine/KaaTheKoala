@@ -21,6 +21,15 @@ public class DisplayText : MonoBehaviour {
 		}
 	}
 
+
+	void OnTriggerStay(Collider other) {
+		if (Tools.getState() == State.Awake) {
+			if (other.tag == "Player") {
+				rend.enabled = true;
+			}
+		}
+	}
+
 	void OnTriggerExit(Collider other) {
 		if (Tools.getState() == State.Awake) {
 			if (other.tag == "Player") {

@@ -44,6 +44,8 @@ public class StateManager : MonoBehaviour {
 	AudioClip dayAmbiance;
 	[SerializeField]
 	AudioClip nightAmbiance;
+	[SerializeField]
+	AudioClip hurtSound;
 	AudioSource audio;
 
 	// Use this for initialization
@@ -56,7 +58,6 @@ public class StateManager : MonoBehaviour {
 	void Update () {
 		timerUpdate();
 		changeStateControle();
-		
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			SceneManager.LoadScene("PlayAgainMenu", LoadSceneMode.Single);
 		}
@@ -84,6 +85,7 @@ public class StateManager : MonoBehaviour {
 				playerAsleep = Instantiate (ghostKoala, position, ghostKoala.transform.rotation).gameObject;
 				player = playerAsleep;
 				currentTime = timeMax;
+				currentHealth = healthMax;
 				state = State.Asleep;
 				audio.clip = nightAmbiance;
 				audio.Play();
@@ -95,13 +97,13 @@ public class StateManager : MonoBehaviour {
 			}
 		} else if (state == State.Asleep) {
 			if (currentTime <= 0) {
-				
+				currentDistanceTravelled = 0;
 				//playerAwake.GetComponent<KoalaController>().Awake();
 				playerAwake.GetComponent<Rigidbody>().isKinematic = false;
 				Destroy (playerAsleep);
 				state = State.Awake;
-				currentDistanceTravelled = 0;
-				lastPosition = player.transform.position;
+				
+
 				// timerSound.Stop();
 				audio.clip = dayAmbiance;
 				audio.Play();
@@ -109,6 +111,8 @@ public class StateManager : MonoBehaviour {
 						changeStateHppnd();
 				}
 				player = playerAwake;
+				lastPosition = player.transform.position;
+				
 			}
 		} else if (state == State.Done) {
 			player.GetComponent<Rigidbody>().isKinematic = true;
@@ -133,6 +137,7 @@ public class StateManager : MonoBehaviour {
 	}
 
 	public void looseHealth(int num){
+		audio.PlayOneShot(hurtSound, 0.8F);
 		currentHealth -= num;
 		if (currentHealth == 0) {
 			if (noLifeLeft != null) {
@@ -154,7 +159,12 @@ public class StateManager : MonoBehaviour {
 	}
 
 	public void addDistance(float dist) {
-		currentDistanceTravelled += dist;
+		if (currentDistanceTravelled + dist <= 0) {
+			currentDistanceTravelled = 0;
+		} else {
+			currentDistanceTravelled += dist;
+		}
+		
 	}
 
 	public void setLastPosition(Vector3 pos) {

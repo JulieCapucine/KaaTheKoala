@@ -31,8 +31,9 @@ public class displayTimeLimited : MonoBehaviour {
 	void Update () {
 		if (Tools.getState() == State.Awake) {
 			updateSeedDisplay();
-		} 
-	
+		} else {
+			imgComponent.enabled = false;
+		}
 	}
 
 	void updateDisplayMovement() {
@@ -63,17 +64,16 @@ public class displayTimeLimited : MonoBehaviour {
 
 				imgComponent.enabled = true;
 				timeSeed -= Time.deltaTime;
-				Debug.Log("here");
 			}
 		}
 	}
 
 	void OnEnable() {
-		CollectOnContact.onGainingSeed += textPlantSeed;
+		ObjectController.onGainingSeed += textPlantSeed;
 	}
 
 	void OnDisable() {
-		CollectOnContact.onGainingSeed -= textPlantSeed;
+		ObjectController.onGainingSeed -= textPlantSeed;
 	}
 
 	void textPlantSeed (){

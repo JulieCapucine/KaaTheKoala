@@ -21,12 +21,12 @@ public class SeedCounterUI : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		CollectOnContact.onGainingSeed += collectSeed;
+		ObjectController.onGainingSeed += collectSeed;
 		GameController.onPlanting += plantSeed;
 	}
 
 	void OnDisable() {
-		CollectOnContact.onGainingSeed -= collectSeed;
+		ObjectController.onGainingSeed -= collectSeed;
 		GameController.onPlanting -= plantSeed;
 	}
 

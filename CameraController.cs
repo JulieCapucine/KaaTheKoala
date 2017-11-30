@@ -9,7 +9,6 @@ public class CameraController : MonoBehaviour {
 
 	Camera mainCam;
 
-	[SerializeField]
 	float cameraSpeed;
 
 	Vector3 forward, right;
@@ -26,11 +25,15 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 		mainCam = GetComponent<Camera>();
 		player =  GameObject.FindGameObjectWithTag("Player");
-		cameraSpeed = player.GetComponent<CharController>().getSpeed();
+		cameraSpeed = player.GetComponent<CharController>().getSpeed()*0.8f;
 		if (moveEdges) {
 			setupIsometricVector();
 		} else if (followPlayer) {
 			offset = transform.position - player.transform.position;
+			transform.position = player.transform.position + offset;
+		} else if (fixedCam) {
+			offset = transform.position - player.transform.position;
+			transform.position = player.transform.position + offset;
 		}
 		
 		//Calculate and store the offset value by getting the distance between the player's position and camera's position.
@@ -55,22 +58,21 @@ public class CameraController : MonoBehaviour {
 
 	void isPlayerNearEdge() {
 		Vector3 screenPoint = mainCam.WorldToViewportPoint(player.transform.position);
-		bool onScreen = screenPoint.z > 0 && screenPoint.x > 0.2 && screenPoint.x < 0.8 && screenPoint.y > 0.2 && screenPoint.y < 0.8;
+		bool onScreen = screenPoint.z > 0 && screenPoint.x > 0.3 && screenPoint.x < 0.7 && screenPoint.y > 0.3 && screenPoint.y < 0.7;
 		if (!onScreen) {
 			float moveHorizontal = 0, moveVertical = 0;
-			if (screenPoint.x < 0.2) {
+			if (screenPoint.x < 0.3) {
 				moveHorizontal = -1;
-			} else if (screenPoint.x > 0.8) {
+			} else if (screenPoint.x > 0.7) {
 				moveHorizontal = 1;
-			} else if (screenPoint.y < 0.2) {
+			} else if (screenPoint.y < 0.3) {
 				moveVertical = -1;
-			} else if (screenPoint.y > 0.8) {
+			} else if (screenPoint.y > 0.7) {
 				moveVertical = 1;
 			}
-		Vector3 rightMovement = right * cameraSpeed * Time.deltaTime * moveHorizontal;
-		Vector3 upMovememt = forward * cameraSpeed * Time.deltaTime * moveVertical;
-		transform.position += rightMovement;
-		transform.position += upMovememt;
+		Vector3 rightMovement = right * cameraSpeed  * moveHorizontal;
+		Vector3 upMovement = forward * cameraSpeed  * moveVertical;
+		transform.position += (rightMovement + upMovement) * Time.deltaTime;
 		}
 	}
 
@@ -93,10 +95,14 @@ public class CameraController : MonoBehaviour {
 	void changeStateHppnd() {
 		 if (Tools.getState() == State.Asleep) {
 		 	player =  GameObject.Find("GhostKoala(Clone)");
+		 	cameraSpeed = player.GetComponent<CharController>().getSpeed() *0.8f;
 		 	offset = transform.position - player.transform.position;
 		 	transform.position = player.transform.position + offset;
 		 } else if (Tools.getState() == State.Awake) {
 		 	player =  GameObject.Find("Koala");
+		 	cameraSpeed = player.GetComponent<CharController>().getSpeed()*0.8f;
+		 	offset = transform.position - player.transform.position;
+		 	transform.position = player.transform.position + offset;
 		 }
 		
 	}

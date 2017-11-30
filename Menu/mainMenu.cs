@@ -6,21 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class mainMenu : MonoBehaviour {
 
-	public bool isStartFirst;
-	public bool isStartSecond;
+	public bool isStart;
 	public bool isQuit;
 
 	void OnMouseUp(){
-		if(isStartFirst)
+		if(isStart)
 		{	
-			SceneManager.LoadScene("Level 1", LoadSceneMode.Single);
-			//Application.LoadLevel(1);
-		}
-		if(isStartSecond)
-		{
-			SceneManager.LoadScene("Level 2", LoadSceneMode.Single);
-		}
-		if (isQuit)
+			SceneManager.LoadScene("Level1", LoadSceneMode.Single);
+		} else if(isQuit)
 		{
 			Application.Quit();
 		}

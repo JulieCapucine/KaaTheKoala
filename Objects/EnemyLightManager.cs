@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class EnemyLightManager : MonoBehaviour {
 
-	GameObject child;
+	GameObject[] child;
 	// Use this for initialization
 	void Start () {
-		child = GameObject.Find("GroundLight").gameObject;
+		child = GameObject.FindGameObjectsWithTag("GroundLight");
 		if (Tools.getState() == State.Awake){
-			child.SetActive(false);
+			foreach(GameObject gameObj in child) {
+				gameObj.SetActive(false);
+			}
 		}
 	}
 	
@@ -27,10 +29,14 @@ public class EnemyLightManager : MonoBehaviour {
 	}
 
 	void changeStateHppnd() {
-		if (Tools.getState() == State.Asleep) {
-			child.SetActive(true);
-		 } else {
-		 	child.SetActive(false);
+		if (Tools.getState() == State.Asleep){
+			foreach(GameObject gameObj in child) {
+				gameObj.SetActive(true);
+			}
+		} else {
+		 	foreach(GameObject gameObj in child) {
+				gameObj.SetActive(false);
+			}
 		 }
 		
 	}

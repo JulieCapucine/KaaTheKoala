@@ -19,6 +19,13 @@ public class TreeController : MonoBehaviour {
 	AudioClip eatLeaves;
 
 	Animator animator;
+	GameController gameController;
+
+	[SerializeField]
+	int energyFromLeaf;
+
+	float currentTime;
+	float maxTime = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -26,15 +33,35 @@ public class TreeController : MonoBehaviour {
 		audio = GetComponent<AudioSource>();
 		GetComponent<Collider>().enabled = true;
 		animator = GetComponentInChildren<Animator>();
+		gameController = Tools.loadGameController();
 	}	
 
-	void update() {
-
+	void Update() {
+		if ((currentTime > 0 ) && (currentTime <= maxTime)){
+			currentTime += Time.deltaTime;
+		} else {
+			currentTime = 0;
+		}
 	}
 
 	void setUpBranch (){
 		nbBranch = nbBranchMax;
-		//Debug.Log (nbBranch + " / " + nbBranchMax);
+	}
+
+	void OnTriggerStay(Collider col) {
+		if (col.gameObject.tag == "Player") {
+			if (Tools.getState() == State.Awake) {
+				if (Input.GetKeyDown (KeyCode.E)) {
+					if (currentTime == 0) {
+						if (eatBranch ()) {
+							gameController.gainEnergy (energyFromLeaf);
+						}
+						currentTime += Time.deltaTime;
+					}
+					
+				}
+			}
+		}
 	}
 
 	public bool eatBranch(){

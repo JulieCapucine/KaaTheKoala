@@ -6,7 +6,9 @@ using UnityEngine.UI;
 public class textObject : MonoBehaviour {
 
 	[SerializeField]
-	Sprite pressE;
+	Sprite pressEnight;
+	[SerializeField]
+	Sprite pressEday;
 	Image imgComponent;
 
 	// Use this for initialization
@@ -16,20 +18,42 @@ public class textObject : MonoBehaviour {
 
 	}
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
 
 	void OnTriggerEnter(Collider other) {
-		if ((other.gameObject.tag == "Trash") || (other.gameObject.tag == "Tree")) {
+		if ((other.gameObject.tag == "Player")) {
 			imgComponent.enabled = true;
-			imgComponent.sprite = pressE;
+			if (Tools.getState() == State.Awake) {
+				imgComponent.sprite = pressEday;
+			}
+			// } else if (Tools.getState() == State.Asleep) {
+			// 	// if (this.tag == "Trash") {
+			// 	// 	imgComponent.sprite = pressEnight;
+			// 	// } else {
+			// 	// 	imgComponent.enabled = false;
+			// 	// }
+				
+			// }
+			
+			
 		}
 	}
 
 	void OnTriggerExit(Collider other) {
+		if ((other.gameObject.tag == "Player")) {
+			imgComponent.enabled = false;
+		}
+	}
+
+	void disableText () {
 		imgComponent.enabled = false;
 	}
+
+	void OnEnable() {
+		ObjectController.isDestroyed += disableText;
+	}
+
+	void OnDisable() {
+		ObjectController.isDestroyed -= disableText;
+	}
+
 }

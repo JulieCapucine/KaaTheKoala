@@ -6,6 +6,9 @@ using UnityEngine;
  public static class Tools
  {
 
+ 	public static string level;
+ 	public static bool win;
+
  	//returns the GameController of the game
    public static GameController loadGameController() {
    		GameController gameController = null;

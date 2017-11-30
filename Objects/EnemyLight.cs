@@ -13,6 +13,9 @@ public class EnemyLight : MonoBehaviour {
 	[SerializeField]
 	int nbLifePoints;
 
+	[SerializeField]
+	Vector3 centerOrbit;
+
 	Vector3 direction;
 	Vector3 front;
 	Vector3 back;
@@ -108,12 +111,12 @@ public class EnemyLight : MonoBehaviour {
 	}
 
 	void setupCircularMovement() {
-		pos = new Vector3 (radiusMvt, parent.transform.position.y, 0);
-		parent.transform.position = pos;
+		// pos = new Vector3 (radiusMvt, parent.transform.position.y, 0);
+		// parent.transform.position = pos;
 	}
 
 	void circularMovement() {
-		parent.transform.RotateAround(Vector3.zero, Vector3.up, speed);
+		transform.RotateAround(centerOrbit, Vector3.up, speed);
 	}
 
 	void OnEnable() {

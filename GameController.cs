@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {
 
-	//UI Feedback
-	// public GUIText trashText;
-	// public GUIText seedText;
-	// public GUIText stepText;
 
 	//Counter displayed in the UI
 	int trashCounter, seedCounter;
@@ -47,16 +44,18 @@ public class GameController : MonoBehaviour {
 		seedCounter = 0;
 		trashCounter = GameObject.FindGameObjectsWithTag("Trash").Length;
 		audio = GetComponent<AudioSource>();
-
+		setLevel();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		//textUpdate();
 		if (hasWon) {
-			endGameMessage("YOU WIN !");
+			Tools.win = true;
+			SceneManager.LoadScene("PlayAgain", LoadSceneMode.Single);
 		} else if (hasLost) {
-			endGameMessage("YOU LOSE !");
+			Tools.win = false;
+			SceneManager.LoadScene("PlayAgain", LoadSceneMode.Single);
 		} else {
 			updateDistance();
 			if (stateManager.getState() == State.Awake) {
@@ -76,25 +75,6 @@ public class GameController : MonoBehaviour {
 
 	void noLife() {
 		hasLost = true;
-	}
-
-	void endGameMessage(string str) {
-		tempTime += Time.deltaTime;
-			if (tempTime >= timeBeforeLosing) {
-				GameObject textEndObject = GameObject.FindGameObjectWithTag("Finish");
-				if (textEndObject != null) {
-					Text textEnd = textEndObject.GetComponent<Text>();
-					textEnd.enabled = true;
-					textEnd.text = str;
-				}
-				if (GameObject.Find("UICanvas") != null ) {
-					GameObject.Find("UICanvas").SetActive(false);
-				}
-				
-				player.SetActive(false);
-				stateManager.setState(State.Done);
-				player.GetComponent<Rigidbody>().isKinematic = true;
-			}
 	}
 
 	void keyboardInputAwake (){
@@ -152,17 +132,7 @@ public class GameController : MonoBehaviour {
 	public void gainEnergy(int num) {
 		stateManager.addDistance(- num);
 	}
-		
-	//UI_UPDATE 
-	// void textUpdate() {
-	// 	trashText.text = "trash left: " + trashCounter;
-	// 	seedText.text = "seeds in Kaa pooch: " + seedCounter;
-	// 	if (stateManager.getState() == State.Awake) {
-	// 		stepText.text = "distance left before falling asleep:" + Mathf.Floor (stateManager.getDistanceMax() - stateManager.getDistanceTravelled());
-	// 	} else {
-	// 		stepText.text = "time remaining : " + Mathf.Floor (stateManager.getTime().x);
-	// 	}
-	// }
+
 
 	public int getSeedCounter() {
 		return seedCounter;
@@ -180,6 +150,12 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	void setLevel() {
+		Scene scene = SceneManager.GetActiveScene();
+		string name = scene.name;
+		Tools.level = name;
+	}
+
 	void allTree(){
 		allTreePlanted = true;
 		if (allTrashCollected == true) {
@@ -190,7 +166,7 @@ public class GameController : MonoBehaviour {
 
 	void fallingOutOfMap() {
 		hasLost = true;
-		timeBeforeLosing = 5;
+		timeBeforeLosing = 1;
 	}
 
 
